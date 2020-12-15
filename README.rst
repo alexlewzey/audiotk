@@ -3,14 +3,14 @@ My Helpers
 ==========
 
 
-.. image:: https://img.shields.io/pypi/v/slibtk.svg
-        :target: https://pypi.python.org/pypi/slibtk
+.. image:: https://img.shields.io/pypi/v/audiotk.svg
+        :target: https://pypi.python.org/pypi/audiotk
 
-.. image:: https://img.shields.io/travis/alexlewzey/slibtk.svg
-        :target: https://travis-ci.org/alexlewzey/slibtk
+.. image:: https://img.shields.io/travis/alexlewzey/audiotk.svg
+        :target: https://travis-ci.org/alexlewzey/audiotk
 
-.. image:: https://readthedocs.org/projects/slibtk/badge/?version=latest
-        :target: https://slibtk.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/audiotk/badge/?version=latest
+        :target: https://audiotk.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
@@ -20,7 +20,7 @@ A collection of general purpose helper modules
 
 
 * Free software: BSD license
-* Documentation: https://slibtk.readthedocs.io.
+* Documentation: https://audiotk.readthedocs.io.
 
 
 Features

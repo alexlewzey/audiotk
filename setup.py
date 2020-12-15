@@ -26,6 +26,6 @@ setup(
     name='audiotk',
     packages=find_packages(include=['audiotk', 'audiotk.*']),
     test_suite='tests',
-    url='https://github.com/alexlewzey/slibtk',
+    url='https://github.com/alexlewzey/audiotk',
     version='0.1.0',
 )

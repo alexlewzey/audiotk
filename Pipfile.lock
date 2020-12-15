@@ -435,7 +435,7 @@
             ],
             "version": "==0.8.4"
         },
-        "slibtk": {
+        "audiotk": {
             "editable": true,
             "path": "."
         },
