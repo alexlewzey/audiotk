@@ -1,10 +1,30 @@
 """command line tool for interacting with audio files"""
-from pathlib import Path
-from typing import *
+
+import re
 
 import fire
-from pydub import AudioSegment
-import re
+from pydub import AudioSegment, effects
+
+from audiotk.core import *
+
+
+def normalise(*paths: PathOrStr) -> None:
+    """normalise an arbitrary number of audio file"""
+    for path in paths:
+        path = Path(path)
+        suffix = path.suffix.strip('.')
+        clip = effects.normalize(AudioSegment.from_file(path.as_posix(), suffix))
+        clip.export(path.as_posix(), format=suffix)
+        print(f'normalised: {path.as_posix()}')
+
+
+def normaliser(path: PathOrStr, fmt: str) -> None:
+    """normalise every file in a directory of a particular audio format"""
+    for p in Path(path).iterdir():
+        if p.is_file() and p.suffix.strip('.') == fmt:
+            clip = effects.normalize(AudioSegment.from_file(path.as_posix(), fmt))
+            clip.export(path.as_posix(), format=fmt)
+            print(f'normalised: {p.as_posix()}')
 
 
 def fmt2fmt(path: Union[str, Path], in_fmt: str, out_fmt: str) -> None:
@@ -51,6 +71,8 @@ def ls(path: Union[str, Path]):
 
 def main():
     fire.Fire({
+        'normalise': normalise,
+        'normaliser': normaliser,
         'fmt2fmt': fmt2fmt,
         'm4a2wav': m4a2wav,
         'mp32wav': mp32wav,
