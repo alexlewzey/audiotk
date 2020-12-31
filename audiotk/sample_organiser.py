@@ -66,13 +66,21 @@ def user_tag_check(cwd: Path, sample: Path) -> Optional[str]:
     index = dict(enumerate(dirs))
     dirs = '\n'.join([f'{n}: {dname}' for n, dname in index.items()])
 
-    # if sample has bit depth of 24 save as 16 before playing / plotting, pydub & scipy do not support 24 bit
     demo_sample, temp = sample, cwd / 'temp.wav'
-    sound_file = sf.SoundFile(sample.as_posix())
+
+    # if sample is mp3 format
+    if sample.suffix == '.mp3':
+        clip = AudioSegment.from_mp3(sample.as_posix()).export(temp, format='wav')
+        clip.close()
+        demo_sample = temp
+
+    # if sample has bit depth of 24 save as 16 before playing / plotting, pydub & scipy do not support 24 bit
+    sound_file = sf.SoundFile(demo_sample.as_posix())
     if sound_file.subtype in ('PCM_24', 'FLOAT'):
-        data, sample_rate = sf.read(sample.as_posix())
+        data, sample_rate = sf.read(demo_sample.as_posix())
         sf.write(temp.as_posix(), data, sample_rate, subtype='PCM_16')
         demo_sample = temp
+    sound_file.close()
 
     clip = AudioSegment.from_wav(demo_sample.as_posix())
     chunk_length_ms = 5000  # 5 seconds
