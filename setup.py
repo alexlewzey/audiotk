@@ -14,11 +14,17 @@ setup(
     description="A collection of general purpose helper modules",
     entry_points={
         'console_scripts': [
-            'audiotk=audiotk.cli:main',
+            'fmt_converter=audiotk.fmt_converter:main',
+            'sample_organiser=audiotk.sample_organiser:main'
         ],
     },
     install_requires=[
         'pydub',
+        'simpleaudio',
+        'soundfile',
+        'scipy',
+        'matplotlib',
+        'tqdm',
         'fire',
     ],
     license="BSD license",
