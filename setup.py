@@ -15,7 +15,8 @@ setup(
     entry_points={
         'console_scripts': [
             'audiotk=audiotk.audiotk:main',
-            'sample_organiser=audiotk.sample_organiser:main'
+            'guitartk=audiotk.guitartk:main',
+            'sample_organiser=audiotk.sample_organiser:main',
         ],
     },
     install_requires=[
