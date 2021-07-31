@@ -37,13 +37,14 @@ def normaliser(path: PathOrStr, fmt: str) -> None:
             print(f'normalised: {p.as_posix()}')
 
 
-def fmt2fmt(path: Union[str, Path], in_fmt: str, out_fmt: str) -> None:
+def fmt2fmt(path: Union[str, Path], in_fmt: str, out_fmt: str, norm: bool = True) -> None:
     """
     covert every file in a directory of a particular format to another format and remove the original
     Args:
         path: directory containing audio files
         in_fmt: input file extension eg m4a
         out_fmt: output file extension eg wav
+        norm: bool if True normalise the audio once converted to new format
 
     """
     for in_path in Path(path).iterdir():
@@ -53,15 +54,12 @@ def fmt2fmt(path: Union[str, Path], in_fmt: str, out_fmt: str) -> None:
             clip.export(out_path.as_posix(), format=out_fmt)
             print(f'coverted: {in_path.name} > {out_path.as_posix()}')
             in_path.unlink()
+            if norm:
+                normalise(out_path)
 
 
-def m4a2wav(path: Union[str, Path]) -> None:
-    fmt2fmt(path, in_fmt='m4a', out_fmt='wav')
-
-
-def m4a2wav_norm(path: Union[str, Path]) -> None:
-    m4a2wav(path)
-    normaliser(path, 'wav')
+def m4a2wav(path: Union[str, Path], **kwargs) -> None:
+    fmt2fmt(path, in_fmt='m4a', out_fmt='wav', **kwargs)
 
 
 def mp32wav(path: Union[str, Path]) -> None:
