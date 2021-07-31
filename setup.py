@@ -14,7 +14,7 @@ setup(
     description="A collection of general purpose helper modules",
     entry_points={
         'console_scripts': [
-            'fmt_converter=audiotk.fmt_converter:main',
+            'audiotk=audiotk.audiotk:main',
             'sample_organiser=audiotk.sample_organiser:main'
         ],
     },

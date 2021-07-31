@@ -1,4 +1,14 @@
-"""command line tool for interacting with audio files"""
+"""
+command line tool for interacting with audio files
+
+instructions
+------------
+
+1. install package with pip: pip install -e .
+2. setup.py includes and entry point so scripts can be run from the command line
+3. convert files in current directory: fmt_converter m4a2wav .
+
+"""
 
 import re
 
@@ -22,8 +32,8 @@ def normaliser(path: PathOrStr, fmt: str) -> None:
     """normalise every file in a directory of a particular audio format"""
     for p in Path(path).iterdir():
         if p.is_file() and p.suffix.strip('.') == fmt:
-            clip = effects.normalize(AudioSegment.from_file(path.as_posix(), fmt))
-            clip.export(path.as_posix(), format=fmt)
+            clip = effects.normalize(AudioSegment.from_file(p.as_posix(), fmt))
+            clip.export(p.as_posix(), format=fmt)
             print(f'normalised: {p.as_posix()}')
 
 
@@ -47,6 +57,11 @@ def fmt2fmt(path: Union[str, Path], in_fmt: str, out_fmt: str) -> None:
 
 def m4a2wav(path: Union[str, Path]) -> None:
     fmt2fmt(path, in_fmt='m4a', out_fmt='wav')
+
+
+def m4a2wav_norm(path: Union[str, Path]) -> None:
+    m4a2wav(path)
+    normaliser(path, 'wav')
 
 
 def mp32wav(path: Union[str, Path]) -> None:
