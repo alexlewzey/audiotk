@@ -1,15 +1,41 @@
-#!/usr/bin/env python
-
 """The setup script."""
+
+from subprocess import check_call
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
+from setuptools.command.develop import develop
+from setuptools.command.install import install
+
+import sys
+
+with open('README.md') as readme_file:
     readme = readme_file.read()
+
+
+class PostDevelopCommand(develop):
+    """Post-installation for development mode."""
+
+    def run(self):
+        develop.run(self)
+        # PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
+        if sys.platform == 'darwin':
+            check_call("brew install ffmpeg".split())
+
+
+class PostInstallCommand(install):
+    """Post-installation for installation mode."""
+
+    def run(self):
+        install.run(self)
+        # PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
+        if sys.platform == 'darwin':
+            check_call("brew install ffmpeg".split())
+
 
 setup(
     author="Alexander Lewzey",
-    author_email='a.lewzey@hotmail.co.uk',
+    author_email='a.lewzey@gmail.com',
     python_requires='>=3.5',
     description="A collection of general purpose helper modules",
     entry_points={
@@ -32,7 +58,10 @@ setup(
     keywords='audiotk',
     name='audiotk',
     packages=find_packages(include=['audiotk', 'audiotk.*']),
-    test_suite='tests',
     url='https://github.com/alexlewzey/audiotk',
     version='0.1.0',
+    cmdclass={
+        'develop': PostDevelopCommand,
+        'install': PostInstallCommand,
+    },
 )
