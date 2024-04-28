@@ -1,5 +1,8 @@
 # pycharm
 .idea
+*.wav
+.DS_Store
+.ruff_cache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

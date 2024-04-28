@@ -8,11 +8,29 @@ instructions
 3. convert files in current directory: fmt_converter m4a2wav .
 """
 
-import re
+import functools
+import shutil
+import subprocess
+import sys
+from datetime import datetime
 from pathlib import Path
 
 import fire
-from pydub import AudioSegment, effects
+import pandas as pd
+import torch
+import transformers
+from pydub import AudioSegment, effects, silence
+from tqdm.auto import tqdm
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+
+if sys.platform == "darwin":
+    try:
+        subprocess.run(["ffmpeg", "-version"], check=True, stdout=subprocess.PIPE)
+    except subprocess.CalledProcessError:
+        print(
+            "ffmpeg is required to run this app on mac. Please install ffmpeg: brew install ffmpeg"
+        )
+        sys.exit(1)
 
 
 def normalise(*paths: Path | str) -> None:
@@ -64,20 +82,85 @@ def mp32wav(path: str | Path) -> None:
 
 
 def prune(path: str | Path, fmt: str) -> None:
-    """Remove every file in the path that does is not a wav, py or asd file
-    type."""
+    """Remove every file in the path that does is not a wav, py or asd file type."""
     for f in Path(path).iterdir():
         if f.suffix.strip(".") == fmt:
             print(f"removing file: {f.name}")
             f.unlink()
 
 
-def ls(path: str | Path):
-    """List of the unique file stems in the directory."""
+def create_pipe() -> transformers.Pipeline:
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+    model_id = "openai/whisper-large-v3"
+    model = AutoModelForSpeechSeq2Seq.from_pretrained(
+        model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=True
+    )
+    model.to(device)
+    processor = AutoProcessor.from_pretrained(model_id)
+    pipe = pipeline(
+        "automatic-speech-recognition",
+        model=model,
+        tokenizer=processor.tokenizer,
+        feature_extractor=processor.feature_extractor,
+        max_new_tokens=128,
+        chunk_length_s=30,
+        batch_size=16,
+        return_timestamps=True,
+        torch_dtype=torch_dtype,
+        device=device,
+    )
+    return pipe
+
+
+pipe = functools.partial(
+    create_pipe(), generate_kwargs={"language": "english", "task": "translate"}
+)
+
+
+def concat_text(df: pd.DataFrame) -> str:
+    return " ".join(df.text.tolist()).strip()
+
+
+def get_datetime() -> str:
+    return datetime.now().replace(microsecond=0).isoformat().replace(":", "")
+
+
+def speech2text(
+    path: str | Path,
+    min_silence_len: int = 1000,
+    silence_thresh: int = -30,
+    keep_silence: int = 1000,
+) -> None:
+    """For a given directory of m4a|wav audio files convert the audio speech into text
+    and save in a text file."""
     path = Path(path)
-    fnames = [re.search(r"(.+?)\..+", p.name).groups()[0] for p in path.iterdir()]
-    for fn in set(fnames):
-        print(fn)
+    m4a2wav(path)
+    dir_wavs = path.glob("*.wav")
+    path_tmp = Path("tmp") / "chunk.wav"
+    path_tmp.parent.mkdir(exist_ok=True)
+    timestamp = get_datetime()
+    path_parquet = path / f"translation_{timestamp}.parquet"
+    path_txt = path / f"translation_{timestamp}.txt"
+    rows = []
+    for path in tqdm(dir_wavs, desc="file"):
+        wav = AudioSegment.from_wav(path)
+        chunks = silence.split_on_silence(
+            wav,
+            min_silence_len=min_silence_len,
+            silence_thresh=silence_thresh,
+            keep_silence=keep_silence,
+        )
+        for i, chunk in tqdm(enumerate(chunks), desc="chunk", total=len(chunks)):
+            chunk.export(path_tmp.as_posix(), format="wav")
+            pred = pipe(path_tmp.as_posix())
+            rows.append((path.name, i, pred["text"]))
+    shutil.rmtree(path_tmp.parent)
+    df = pd.DataFrame(rows, columns=["file_name", "chunk", "text"])
+    df.to_parquet(path_parquet)
+    with path_txt.open("w") as f:
+        text = concat_text(df)
+        f.write(text)
 
 
 def main():
@@ -89,6 +172,6 @@ def main():
             "m4a2wav": m4a2wav,
             "mp32wav": mp32wav,
             "prune": prune,
-            "ls": ls,
+            "speech2text": speech2text,
         }
     )

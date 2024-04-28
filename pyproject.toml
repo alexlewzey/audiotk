@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "audiotk"
+version = "0.1.0"
+description = ""
+authors = ["Alexander Lewzey <a.lewzey@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydub = "^0.25.1"
+simpleaudio = "^1.0.4"
+soundfile = "^0.12.1"
+scipy = "^1.13.0"
+matplotlib = "^3.8.4"
+tqdm = "^4.66.2"
+fire = "^0.6.0"
+transformers = "^4.40.1"
+torch = "^2.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.4"
+pre-commit = "^3.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+audiotk = "audiotk.audiotk:main"
