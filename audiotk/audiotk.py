@@ -136,7 +136,8 @@ def speech2text(
     and save in a text file."""
     path = Path(path)
     m4a2wav(path)
-    dir_wavs = path.glob("*.wav")
+    dir_wavs = list(path.glob("*.wav"))
+    dir_wavs = sorted(dir_wavs, key=lambda x: x.stat().st_ctime)
     path_tmp = Path("tmp") / "chunk.wav"
     path_tmp.parent.mkdir(exist_ok=True)
     timestamp = get_datetime()
