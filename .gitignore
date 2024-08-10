@@ -1,5 +1,6 @@
 prototyping/*
 !prototyping/.gitkeep
+tmp.*
 
 # pycharm
 .idea

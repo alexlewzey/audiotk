@@ -19,6 +19,7 @@ import fire
 import pandas as pd
 import torch
 import transformers
+from moviepy.editor import VideoFileClip
 from pydub import AudioSegment, effects, silence
 from tqdm.auto import tqdm
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
@@ -171,6 +172,11 @@ def speech2text(
         f.write(text)
 
 
+def to_gif(path: Path, width: int = 1000, fps: int = 10) -> None:
+    clip = VideoFileClip(path.as_posix()).resize(width=width)
+    clip.write_gif(f"{path.stem}.gif", program="ffmpeg", fps=fps)
+
+
 def main():
     fire.Fire(
         {
@@ -181,5 +187,6 @@ def main():
             "mp32wav": mp32wav,
             "prune": prune,
             "speech2text": speech2text,
+            "to_gif": to_gif,
         }
     )
