@@ -1,8 +1,9 @@
 # audiotk
 
-audio took-kit
+Command line interface containing tools for audio processing e.g. speech to text,
+changing audio formats, etc
 
-### install and run
+### install
 
-1. pip install -e .
+1. make install
 2. requires ffmpeg (is installed with brew if on Mac)

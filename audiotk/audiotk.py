@@ -25,10 +25,12 @@ from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
 if sys.platform == "darwin":
     try:
-        subprocess.run(["ffmpeg", "-version"], check=True, stdout=subprocess.PIPE)
+        commands = ["ffmpeg", "-version"]
+        subprocess.run(commands, check=True, stdout=subprocess.PIPE)  # noqa: S603
     except subprocess.CalledProcessError:
         print(
-            "ffmpeg is required to run this app on mac. Please install ffmpeg: brew install ffmpeg"
+            "ffmpeg is required to run this app on mac. Please install ffmpeg: brew "
+            "install ffmpeg"
         )
         sys.exit(1)
 
@@ -52,15 +54,18 @@ def normaliser(path: Path | str, fmt: str) -> None:
             print(f"normalised: {p.as_posix()}")
 
 
-def fmt2fmt(path: str | Path, in_fmt: str, out_fmt: str, norm: bool = True) -> None:
-    """
-    covert every file in a directory of a particular format to another format and remove the original
+def fmt2fmt(
+    path: str | Path, in_fmt: str, out_fmt: str, norm: bool = True, unlink: bool = True
+) -> None:
+    """Covert every file in a directory of a particular format to another format and
+    remove the original.
+
     Args:
         path: directory containing audio files
         in_fmt: input file extension eg m4a
         out_fmt: output file extension eg wav
         norm: bool if True normalise the audio once converted to new format
-
+        unlink: bool if True delete the input file
     """
     for in_path in Path(path).iterdir():
         if in_path.is_file() and in_path.suffix.strip(".") == in_fmt:
@@ -68,7 +73,8 @@ def fmt2fmt(path: str | Path, in_fmt: str, out_fmt: str, norm: bool = True) -> N
             out_path = in_path.parent / f"{in_path.stem}.{out_fmt}"
             clip.export(out_path.as_posix(), format=out_fmt)
             print(f"coverted: {in_path.name} > {out_path.as_posix()}")
-            in_path.unlink()
+            if unlink:
+                in_path.unlink()
             if norm:
                 normalise(out_path)
 
@@ -136,8 +142,7 @@ def speech2text(
     and save in a text file."""
     path = Path(path)
     m4a2wav(path)
-    dir_wavs = list(path.glob("*.wav"))
-    dir_wavs = sorted(dir_wavs, key=lambda x: x.stat().st_ctime)
+    dir_wavs = sorted(path.glob("*.wav"))
     path_tmp = Path("tmp") / "chunk.wav"
     path_tmp.parent.mkdir(exist_ok=True)
     timestamp = get_datetime()
@@ -155,9 +160,11 @@ def speech2text(
         for i, chunk in tqdm(enumerate(chunks), desc="chunk", total=len(chunks)):
             chunk.export(path_tmp.as_posix(), format="wav")
             pred = pipe(path_tmp.as_posix())
-            rows.append((path.name, i, pred["text"]))
+            rows.append((path, i, pred["text"], path.stat().st_ctime))
     shutil.rmtree(path_tmp.parent)
-    df = pd.DataFrame(rows, columns=["file_name", "chunk", "text"])
+    df = pd.DataFrame(rows, columns=["path", "chunk", "text", "ctime"]).sort_values(
+        ["ctime", "chunk"]
+    )
     df.to_parquet(path_parquet)
     with path_txt.open("w") as f:
         text = concat_text(df)

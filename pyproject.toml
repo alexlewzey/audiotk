@@ -21,6 +21,7 @@ torch = "^2.3.0"
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
 pre-commit = "^3.7.0"
+pytest = "^8.3.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -28,3 +29,27 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 audiotk = "audiotk.audiotk:main"
+
+
+
+[tool.ruff]
+select = [
+    "A", # Pyflakes: general checks
+    "B", # pycodestyle: pycodestyle checks
+    "C", # mccabe: complexity checks
+    # "D",  # pydocstyle: docstring style checks
+    "E",  # pycodestyle: pycodestyle errors
+    "F",  # pyflakes: unused imports, variables, etc.
+    "I",  # isort: import sorting
+    "N",  # pep8-naming: naming conventions
+    "S",  # bandit: security checks
+    "W",  # pycodestyle: pycodestyle warnings
+    "UP", # pyupgrade: upgrade python version syntax
+]
+
+ignore = [
+    "S101", # Ignore use of assert detected
+    "S108", # ignore use of tmp
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+]
+fix = true
