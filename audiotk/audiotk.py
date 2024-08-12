@@ -172,7 +172,8 @@ def speech2text(
         f.write(text)
 
 
-def to_gif(path: Path, width: int = 1000, fps: int = 10) -> None:
+def to_gif(path: str, width: int = 1000, fps: int = 10) -> None:
+    path = Path(path)
     clip = VideoFileClip(path.as_posix()).resize(width=width)
     clip.write_gif(f"{path.stem}.gif", program="ffmpeg", fps=fps)
 
