@@ -1,39 +1,14 @@
-"""Command line tool for interacting with audio files.
-
-instructions
-------------
-
-1. install package with pip: pip install -e .
-2. setup.py includes and entry point so scripts can be run from the command line
-3. convert files in current directory: fmt_converter m4a2wav .
-"""
-
 import functools
 import shutil
-import subprocess
-import sys
 from datetime import datetime
 from pathlib import Path
 
-import fire
 import pandas as pd
 import torch
 import transformers
-from moviepy.editor import VideoFileClip
 from pydub import AudioSegment, effects, silence
 from tqdm.auto import tqdm
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
-
-if sys.platform == "darwin":
-    try:
-        commands = ["ffmpeg", "-version"]
-        subprocess.run(commands, check=True, stdout=subprocess.PIPE)  # noqa: S603
-    except subprocess.CalledProcessError:
-        print(
-            "ffmpeg is required to run this app on mac. Please install ffmpeg: brew "
-            "install ffmpeg"
-        )
-        sys.exit(1)
 
 
 def normalise(*paths: Path | str) -> None:
@@ -170,24 +145,3 @@ def speech2text(
     with path_txt.open("w") as f:
         text = concat_text(df)
         f.write(text)
-
-
-def to_gif(path: str, width: int = 1000, fps: int = 10) -> None:
-    path = Path(path)
-    clip = VideoFileClip(path.as_posix()).resize(width=width)
-    clip.write_gif(f"{path.stem}.gif", program="ffmpeg", fps=fps)
-
-
-def main():
-    fire.Fire(
-        {
-            "normalise": normalise,
-            "normaliser": normaliser,
-            "fmt2fmt": fmt2fmt,
-            "m4a2wav": m4a2wav,
-            "mp32wav": mp32wav,
-            "prune": prune,
-            "speech2text": speech2text,
-            "to_gif": to_gif,
-        }
-    )

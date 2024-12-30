@@ -1,6 +1,5 @@
-prototyping/*
-!prototyping/.gitkeep
 tmp.*
+tmp/
 
 # pycharm
 .idea

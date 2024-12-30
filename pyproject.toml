@@ -18,19 +18,24 @@ transformers = "^4.40.1"
 torch = "^2.3.0"
 moviepy = "^1.0.3"
 pillow = "9.5.0"
+pydantic = "^2.10.4"
 
 
 [tool.poetry.group.dev.dependencies]
-ipykernel = "^6.29.4"
 pre-commit = "^3.7.0"
 pytest = "^8.3.2"
+
+
+[tool.poetry.group.test.dependencies]
+ipykernel = "^6.29.4"
+pandas = "^2.2.3"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-audiotk = "audiotk.audiotk:main"
+audiotk = "audiotk.cli:main"
 
 
 
