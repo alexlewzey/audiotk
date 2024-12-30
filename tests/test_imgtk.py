@@ -6,7 +6,7 @@ import pytest
 from PIL import Image
 from pydantic import ValidationError
 
-from audiotk.modules.imgtk import RGB, recolor
+from cli_tools.modules.imgtk import RGB, recolor
 
 
 @pytest.fixture

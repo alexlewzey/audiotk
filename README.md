@@ -1,4 +1,4 @@
-# audiotk
+# cli_tools
 
 Command line interface containing tools for audio processing e.g. speech to text,
 changing audio formats, etc

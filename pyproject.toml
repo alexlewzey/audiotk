@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "audiotk"
+name = "cli_tools"
 version = "0.1.0"
 description = ""
 authors = ["Alexander Lewzey <a.lewzey@gmail.com>"]
@@ -35,7 +35,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-audiotk = "audiotk.cli:main"
+cli_tools = "cli_tools.cli:main"
 
 
 
